@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { LeadPanel } from "@/components/lead-panel";
 import { LeadsProvider, useLeads } from "@/lib/leads-store";
-import type { LeadStatus } from "@/lib/types";
 
 const LeadsMap = dynamic(
   () => import("@/components/leads-map").then((m) => m.LeadsMap),
@@ -19,15 +18,17 @@ const LeadsMap = dynamic(
 );
 
 function ReachAppInner() {
-  const { leads, ready } = useLeads();
+  const { leads, tags, ready } = useLeads();
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
+  const [tagFilter, setTagFilter] = useState<string | "all">("all");
 
   const filteredLeads = useMemo(() => {
     const q = query.trim().toLowerCase();
     return leads.filter((lead) => {
-      if (statusFilter !== "all" && lead.status !== statusFilter) return false;
+      if (tagFilter !== "all" && lead.tagId !== tagFilter) return false;
       if (!q) return true;
+      const tagLabel =
+        tags.find((t) => t.id === lead.tagId)?.name.toLowerCase() ?? "";
       const haystack = [
         lead.name,
         lead.company,
@@ -36,12 +37,15 @@ function ReachAppInner() {
         lead.country,
         lead.channel,
         lead.notes,
+        tagLabel,
       ]
         .join(" ")
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [leads, query, statusFilter]);
+  }, [leads, query, tagFilter, tags]);
+
+  const totalLeads = leads.length;
 
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-[#e8e8ed]">
@@ -59,32 +63,40 @@ function ReachAppInner() {
               Outreach geography
             </p>
           </div>
-          <div className="apple-material-soft panel-rise pointer-events-auto rounded-full px-3.5 py-2 text-[13px] font-medium text-[#1d1d1f] [animation-delay:80ms]">
-            {ready ? `${filteredLeads.length} leads` : "Loading…"}
+
+          <div className="apple-material panel-rise pointer-events-auto min-w-[112px] rounded-2xl px-5 py-3 text-right [animation-delay:80ms]">
+            <p className="text-[11px] font-medium tracking-[0.06em] text-[#6e6e73] uppercase">
+              Total leads
+            </p>
+            <p className="mt-0.5 text-[40px] leading-none font-semibold tracking-[-0.04em] text-[#1d1d1f] tabular-nums">
+              {ready ? totalLeads : "—"}
+            </p>
           </div>
         </header>
 
         <div className="pointer-events-none flex min-h-0 flex-1 flex-col justify-end gap-3 lg:flex-row lg:justify-start">
-          <div className="pointer-events-auto panel-rise flex max-h-[48%] w-full flex-col sm:max-h-[55%] lg:h-full lg:max-h-none lg:w-[360px] lg:max-w-[360px] [animation-delay:120ms]">
+          <div className="pointer-events-auto panel-rise flex max-h-[48%] w-full flex-col sm:max-h-[55%] lg:h-full lg:max-h-none lg:w-[380px] lg:max-w-[380px] [animation-delay:120ms]">
             <div className="apple-material flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px]">
               <LeadPanel
                 filteredLeads={filteredLeads}
                 query={query}
                 onQueryChange={setQuery}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
+                tagFilter={tagFilter}
+                onTagFilterChange={setTagFilter}
               />
             </div>
           </div>
         </div>
 
         <div className="pointer-events-none mt-3 flex justify-center sm:justify-end">
-          <div className="apple-material-soft panel-rise pointer-events-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-full px-3.5 py-2 text-[12px] text-[#6e6e73] [animation-delay:180ms]">
-            <LegendDot color="#34c759" label="New" />
-            <LegendDot color="#007aff" label="Contacted" />
-            <LegendDot color="#ff9500" label="Replied" />
-            <LegendDot color="#af52de" label="Meeting" />
-            <LegendDot color="#8e8e93" label="Closed" />
+          <div className="apple-material-soft panel-rise pointer-events-auto flex max-w-full flex-wrap items-center gap-x-3 gap-y-1.5 rounded-full px-3.5 py-2 text-[12px] text-[#6e6e73] [animation-delay:180ms]">
+            {tags.length === 0 ? (
+              <span>No tags yet</span>
+            ) : (
+              tags.map((tag) => (
+                <LegendDot key={tag.id} color={tag.color} label={tag.name} />
+              ))
+            )}
           </div>
         </div>
       </div>

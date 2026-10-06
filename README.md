@@ -4,12 +4,15 @@ Plot where your outreach leads are from — an interactive map for tracking cont
 
 ## Features
 
-- Full-map view of outreach leads with color-coded status markers
+- Full-map view of outreach leads with color-coded custom tags
 - Add leads by city (geocoded via OpenStreetMap Nominatim)
-- Search and filter by status
-- Select a lead to fly to it, update status, or remove it
+- Create and manage your own lead tags
+- Set a lead date (defaults to now)
+- Clear all leads with a confirmation warning
+- Large total-leads count in the top right
+- Search and filter by tag
+- Leads and tags persist in your browser (`localStorage`)
 - Sample seed data so the map is useful on first open
-- Leads persist in your browser (`localStorage`)
 
 ## Stack
 

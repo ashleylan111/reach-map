@@ -10,7 +10,7 @@ import {
   type MapViewport,
 } from "@/components/ui/map";
 import { useLeads } from "@/lib/leads-store";
-import { STATUS_COLORS, type Lead } from "@/lib/types";
+import { formatLeadDate, tagColor, tagName, type Lead } from "@/lib/types";
 
 function viewportForLeads(
   leads: Lead[],
@@ -59,7 +59,7 @@ function viewportForLeads(
 }
 
 export function LeadsMap({ filteredLeads }: { filteredLeads: Lead[] }) {
-  const { selectedId, setSelectedId } = useLeads();
+  const { selectedId, setSelectedId, tags } = useLeads();
   const [viewport, setViewport] = useState<MapViewport>(() =>
     viewportForLeads(filteredLeads, selectedId),
   );
@@ -84,7 +84,7 @@ export function LeadsMap({ filteredLeads }: { filteredLeads: Lead[] }) {
       <MapControls position="bottom-left" showZoom showCompass={false} />
       {filteredLeads.map((lead) => {
         const active = lead.id === selectedId;
-        const color = STATUS_COLORS[lead.status];
+        const color = tagColor(tags, lead.tagId);
         return (
           <MapMarker
             key={lead.id}
@@ -110,6 +110,9 @@ export function LeadsMap({ filteredLeads }: { filteredLeads: Lead[] }) {
               </p>
               <p className="text-[13px] text-[#6e6e73]">{lead.company}</p>
               <p className="mt-1 text-[12px] text-[#86868b]">
+                {tagName(tags, lead.tagId)} · {formatLeadDate(lead.datedAt)}
+              </p>
+              <p className="mt-0.5 text-[12px] text-[#86868b]">
                 {lead.city}
                 {lead.region ? `, ${lead.region}` : ""} · {lead.country}
               </p>

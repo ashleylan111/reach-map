@@ -2,6 +2,8 @@
 
 import { Search, Trash2 } from "lucide-react";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
+import { ClearAllLeadsButton } from "@/components/clear-all-leads-button";
+import { ManageTagsDialog } from "@/components/manage-tags-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,10 +16,12 @@ import {
 } from "@/components/ui/select";
 import { useLeads } from "@/lib/leads-store";
 import {
-  LEAD_STATUSES,
-  STATUS_COLORS,
+  formatLeadDate,
+  fromDatetimeLocalValue,
+  tagColor,
+  tagName,
+  toDatetimeLocalValue,
   type Lead,
-  type LeadStatus,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -25,33 +29,44 @@ type LeadPanelProps = {
   filteredLeads: Lead[];
   query: string;
   onQueryChange: (value: string) => void;
-  statusFilter: LeadStatus | "all";
-  onStatusFilterChange: (value: LeadStatus | "all") => void;
+  tagFilter: string | "all";
+  onTagFilterChange: (value: string | "all") => void;
 };
 
 export function LeadPanel({
   filteredLeads,
   query,
   onQueryChange,
-  statusFilter,
-  onStatusFilterChange,
+  tagFilter,
+  onTagFilterChange,
 }: LeadPanelProps) {
-  const { selectedId, setSelectedId, updateStatus, removeLead, resetToSeed, leads } =
-    useLeads();
+  const {
+    selectedId,
+    setSelectedId,
+    updateLead,
+    removeLead,
+    resetToSeed,
+    leads,
+    tags,
+  } = useLeads();
 
   const selected = leads.find((l) => l.id === selectedId) ?? null;
 
   return (
     <div className="flex h-full min-h-0 flex-col text-[#1d1d1f]">
       <div className="shrink-0 px-4 pt-4 pb-3">
-        <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="mb-3 flex items-center justify-between gap-2">
           <div>
             <p className="text-[15px] font-semibold tracking-[-0.01em]">Leads</p>
             <p className="text-[12px] text-[#6e6e73]">
               {filteredLeads.length} on the map
             </p>
           </div>
-          <AddLeadDialog />
+          <div className="flex items-center gap-0.5">
+            <ManageTagsDialog />
+            <ClearAllLeadsButton />
+            <AddLeadDialog />
+          </div>
         </div>
 
         <div className="grid gap-2">
@@ -65,19 +80,23 @@ export function LeadPanel({
             />
           </div>
           <Select
-            value={statusFilter}
-            onValueChange={(value) =>
-              onStatusFilterChange(value as LeadStatus | "all")
-            }
+            value={tagFilter}
+            onValueChange={(value) => onTagFilterChange(value)}
           >
             <SelectTrigger className="h-9 w-full rounded-xl border-transparent bg-[#787880]/12 text-[14px] shadow-none">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Tag" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
-              <SelectItem value="all">All statuses</SelectItem>
-              {LEAD_STATUSES.map((s) => (
-                <SelectItem key={s.value} value={s.value}>
-                  {s.label}
+              <SelectItem value="all">All tags</SelectItem>
+              {tags.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  <span className="inline-flex items-center gap-2">
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: t.color }}
+                    />
+                    {t.name}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -89,7 +108,7 @@ export function LeadPanel({
         <ul className="space-y-1 px-1 pb-2">
           {filteredLeads.length === 0 ? (
             <li className="px-3 py-12 text-center text-[13px] text-[#6e6e73]">
-              No leads match. Try another search or add one.
+              No leads yet. Add one, or clear your filters.
             </li>
           ) : (
             filteredLeads.map((lead) => {
@@ -111,7 +130,7 @@ export function LeadPanel({
                         "size-2.5 shrink-0 rounded-full",
                         active && "ring-2 ring-white/70",
                       )}
-                      style={{ backgroundColor: STATUS_COLORS[lead.status] }}
+                      style={{ backgroundColor: tagColor(tags, lead.tagId) }}
                       aria-hidden
                     />
                     <span className="min-w-0 flex-1">
@@ -124,7 +143,7 @@ export function LeadPanel({
                           active ? "text-white/75" : "text-[#6e6e73]",
                         )}
                       >
-                        {lead.company} · {lead.city}
+                        {tagName(tags, lead.tagId)} · {formatLeadDate(lead.datedAt)}
                       </span>
                     </span>
                   </button>
@@ -156,36 +175,60 @@ export function LeadPanel({
               <Trash2 className="size-4" />
             </Button>
           </div>
-          <p className="mb-2 text-[12px] text-[#86868b]">
-            {selected.channel} ·{" "}
-            {new Date(selected.createdAt).toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+          <p className="mb-3 text-[12px] text-[#86868b]">
+            {selected.channel} · {selected.city}
+            {selected.region ? `, ${selected.region}` : ""}
           </p>
           {selected.notes ? (
             <p className="mb-3 text-[13px] leading-relaxed text-[#1d1d1f]/90">
               {selected.notes}
             </p>
           ) : null}
-          <Select
-            value={selected.status}
-            onValueChange={(value) =>
-              updateStatus(selected.id, value as LeadStatus)
-            }
-          >
-            <SelectTrigger className="h-9 w-full rounded-xl border-transparent bg-[#787880]/12 text-[14px] shadow-none">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              {LEAD_STATUSES.map((s) => (
-                <SelectItem key={s.value} value={s.value}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="grid gap-2">
+            <div className="grid gap-1">
+              <p className="text-[11px] font-medium tracking-wide text-[#86868b] uppercase">
+                Tag
+              </p>
+              <Select
+                value={selected.tagId}
+                onValueChange={(value) =>
+                  updateLead(selected.id, { tagId: value })
+                }
+              >
+                <SelectTrigger className="h-9 w-full rounded-xl border-transparent bg-[#787880]/12 text-[14px] shadow-none">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {tags.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      <span className="inline-flex items-center gap-2">
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ backgroundColor: t.color }}
+                        />
+                        {t.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1">
+              <p className="text-[11px] font-medium tracking-wide text-[#86868b] uppercase">
+                Lead date
+              </p>
+              <Input
+                type="datetime-local"
+                value={toDatetimeLocalValue(selected.datedAt)}
+                onChange={(e) =>
+                  updateLead(selected.id, {
+                    datedAt: fromDatetimeLocalValue(e.target.value),
+                  })
+                }
+                className="h-9 rounded-xl border-transparent bg-[#787880]/12 text-[14px] shadow-none"
+              />
+            </div>
+          </div>
         </div>
       ) : null}
 

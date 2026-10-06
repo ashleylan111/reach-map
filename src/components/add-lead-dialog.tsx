@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +24,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { geocodePlace } from "@/lib/geocode";
 import { useLeads } from "@/lib/leads-store";
-import { LEAD_STATUSES, type LeadStatus } from "@/lib/types";
+import {
+  fromDatetimeLocalValue,
+  toDatetimeLocalValue,
+} from "@/lib/types";
 
 const CHANNELS = ["Cold email", "LinkedIn", "Referral", "Event", "Inbound", "Other"];
 
@@ -32,29 +35,45 @@ type FormState = {
   name: string;
   company: string;
   location: string;
-  status: LeadStatus;
+  tagId: string;
   channel: string;
   notes: string;
-};
-
-const emptyForm: FormState = {
-  name: "",
-  company: "",
-  location: "",
-  status: "new",
-  channel: "Cold email",
-  notes: "",
+  datedAt: string;
 };
 
 const fieldClass =
   "h-10 rounded-xl border-transparent bg-[#787880]/12 text-[15px] shadow-none focus-visible:border-[#0071e3]/40 focus-visible:ring-[#0071e3]/20";
 
+function makeEmptyForm(defaultTagId: string, datedAt?: string): FormState {
+  return {
+    name: "",
+    company: "",
+    location: "",
+    tagId: defaultTagId,
+    channel: "Cold email",
+    notes: "",
+    datedAt: datedAt ?? "",
+  };
+}
+
 export function AddLeadDialog() {
-  const { addLead } = useLeads();
+  const { addLead, tags } = useLeads();
+  const defaultTagId = tags[0]?.id ?? "tag-new";
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState<FormState>(emptyForm);
+  const [form, setForm] = useState<FormState>(() => makeEmptyForm(defaultTagId));
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setForm(
+        makeEmptyForm(
+          tags[0]?.id ?? defaultTagId,
+          toDatetimeLocalValue(new Date().toISOString()),
+        ),
+      );
+    }
+  }, [open, tags, defaultTagId]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -62,6 +81,11 @@ export function AddLeadDialog() {
 
     if (!form.name.trim() || !form.company.trim() || !form.location.trim()) {
       setError("Name, company, and location are required.");
+      return;
+    }
+
+    if (!form.tagId) {
+      setError("Pick a tag for this lead.");
       return;
     }
 
@@ -81,12 +105,12 @@ export function AddLeadDialog() {
         country: place.country,
         lat: place.lat,
         lng: place.lng,
-        status: form.status,
+        tagId: form.tagId,
         channel: form.channel,
         notes: form.notes.trim(),
+        datedAt: fromDatetimeLocalValue(form.datedAt),
       });
 
-      setForm(emptyForm);
       setOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -100,10 +124,7 @@ export function AddLeadDialog() {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) {
-          setError(null);
-          setForm(emptyForm);
-        }
+        if (!next) setError(null);
       }}
     >
       <DialogTrigger asChild>
@@ -112,13 +133,13 @@ export function AddLeadDialog() {
           Add
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-0 overflow-hidden rounded-[20px] border-black/5 p-0 shadow-2xl sm:max-w-[400px]">
+      <DialogContent className="max-h-[90dvh] gap-0 overflow-y-auto rounded-[20px] border-black/5 p-0 shadow-2xl sm:max-w-[420px]">
         <DialogHeader className="border-b border-black/5 px-5 py-4 text-left">
           <DialogTitle className="text-[19px] font-semibold tracking-[-0.02em]">
             New Lead
           </DialogTitle>
           <DialogDescription className="text-[13px] text-[#6e6e73]">
-            Pin someone by city. We’ll place them on the map.
+            Pin someone by city. Date defaults to right now.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 px-5 py-4">
@@ -164,20 +185,24 @@ export function AddLeadDialog() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
-              <Label className="text-[12px] font-medium text-[#6e6e73]">Status</Label>
+              <Label className="text-[12px] font-medium text-[#6e6e73]">Tag</Label>
               <Select
-                value={form.status}
-                onValueChange={(value) =>
-                  setForm((f) => ({ ...f, status: value as LeadStatus }))
-                }
+                value={form.tagId}
+                onValueChange={(value) => setForm((f) => ({ ...f, tagId: value }))}
               >
                 <SelectTrigger className={`${fieldClass} w-full`}>
-                  <SelectValue />
+                  <SelectValue placeholder="Choose tag" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
-                  {LEAD_STATUSES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
+                  {tags.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      <span className="inline-flex items-center gap-2">
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ backgroundColor: t.color }}
+                        />
+                        {t.name}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -201,6 +226,18 @@ export function AddLeadDialog() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="datedAt" className="text-[12px] font-medium text-[#6e6e73]">
+              Lead date
+            </Label>
+            <Input
+              id="datedAt"
+              type="datetime-local"
+              className={fieldClass}
+              value={form.datedAt}
+              onChange={(e) => setForm((f) => ({ ...f, datedAt: e.target.value }))}
+            />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="notes" className="text-[12px] font-medium text-[#6e6e73]">
