@@ -7,9 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-apple);
+  --font-sans: var(--font-reach-serif);
+  --font-serif: var(--font-reach-serif);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-heading: var(--font-apple-display);
+  --font-heading: var(--font-reach-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,11 +50,11 @@
 }
 
 :root {
-  /* Apple HIG-inspired tokens */
-  --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-    "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-apple-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-    "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* Apple New York–style serif stack (no sans-serif) */
+  --font-reach-serif: "New York", "Iowan Old Style", "Apple Garamond", Charter,
+    var(--font-serif-face), "Source Serif 4", "Times New Roman", Times, serif;
+  --font-reach-display: "New York", "Iowan Old Style", Charter,
+    var(--font-serif-face), "Source Serif 4", "Times New Roman", Times, serif;
 
   --label: #1d1d1f;
   --secondary-label: #6e6e73;
@@ -116,7 +117,7 @@
     letter-spacing: -0.01em;
   }
   html {
-    @apply font-sans;
+    @apply font-serif;
   }
   .maplibregl-popup-content {
     @apply bg-transparent! shadow-none! p-0! rounded-none!;
