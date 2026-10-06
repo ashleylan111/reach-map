@@ -2,7 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LeadPanel } from "@/components/lead-panel";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 import { LeadsProvider, useLeads } from "@/lib/leads-store";
 
 const LeadsMap = dynamic(
@@ -19,6 +22,8 @@ const LeadsMap = dynamic(
 
 function ReachAppInner() {
   const { leads, tags, ready } = useLeads();
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [tagFilter, setTagFilter] = useState<string | "all">("all");
 
@@ -60,17 +65,30 @@ function ReachAppInner() {
               Reach Map
             </p>
             <p className="mt-0.5 text-[13px] leading-snug text-[#6e6e73]">
-              Outreach geography
+              {user?.email ?? "Outreach geography"}
             </p>
           </div>
 
-          <div className="apple-material panel-rise pointer-events-auto min-w-[112px] rounded-2xl px-5 py-3 text-right [animation-delay:80ms]">
-            <p className="text-[11px] font-medium tracking-[0.06em] text-[#6e6e73] uppercase">
-              Total leads
-            </p>
-            <p className="mt-0.5 text-[40px] leading-none font-semibold tracking-[-0.04em] text-[#1d1d1f] tabular-nums">
-              {ready ? totalLeads : "—"}
-            </p>
+          <div className="pointer-events-auto flex items-start gap-2">
+            <div className="apple-material panel-rise min-w-[112px] rounded-2xl px-5 py-3 text-right [animation-delay:80ms]">
+              <p className="text-[11px] font-medium tracking-[0.06em] text-[#6e6e73] uppercase">
+                Total leads
+              </p>
+              <p className="mt-0.5 text-[40px] leading-none font-semibold tracking-[-0.04em] text-[#1d1d1f] tabular-nums">
+                {ready ? totalLeads : "—"}
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              className="apple-material-soft panel-rise h-auto rounded-2xl px-3 py-3 text-[13px] font-semibold text-[#0071e3] hover:bg-white/80 [animation-delay:100ms]"
+              onClick={() => {
+                logout();
+                router.replace("/login");
+              }}
+            >
+              Log out
+            </Button>
           </div>
         </header>
 

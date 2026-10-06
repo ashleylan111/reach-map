@@ -1,5 +1,5 @@
-import { ReachApp } from "@/components/reach-app";
+import { AuthGate } from "@/components/auth-gate";
 
 export default function Home() {
-  return <ReachApp />;
+  return <AuthGate />;
 }
