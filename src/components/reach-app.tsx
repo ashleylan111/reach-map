@@ -45,7 +45,7 @@ function ReachAppInner() {
 
   return (
     <div className="relative flex min-h-dvh flex-col lg:h-dvh lg:flex-row lg:overflow-hidden">
-      <aside className="order-2 flex min-h-[420px] flex-1 flex-col border-t border-[color:var(--line)] lg:order-1 lg:h-full lg:w-[380px] lg:flex-none lg:border-t-0 lg:border-r">
+      <aside className="order-2 flex min-h-[420px] min-h-0 flex-1 flex-col border-t border-[color:var(--line)] lg:order-1 lg:h-full lg:w-[380px] lg:flex-none lg:border-t-0 lg:border-r">
         <LeadPanel
           filteredLeads={filteredLeads}
           query={query}

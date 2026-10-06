@@ -53,7 +53,7 @@ export function LeadPanel({
     .slice(0, 3);
 
   return (
-    <aside className="flex h-full flex-col bg-[color:var(--panel)] text-[color:var(--ink)]">
+    <aside className="flex h-full min-h-0 flex-col bg-[color:var(--panel)] text-[color:var(--ink)]">
       <div className="border-b border-[color:var(--line)] px-5 pt-5 pb-4">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
@@ -116,7 +116,7 @@ export function LeadPanel({
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <ul className="divide-y divide-[color:var(--line)]">
           {filteredLeads.length === 0 ? (
             <li className="px-5 py-10 text-center text-sm text-[color:var(--muted-ink)]">
