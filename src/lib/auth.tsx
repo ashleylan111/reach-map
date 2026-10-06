@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  SessionProvider,
+  signIn,
+  signOut,
+  useSession,
+} from "next-auth/react";
+import {
   createContext,
   useCallback,
   useContext,
@@ -10,55 +16,93 @@ import {
   type ReactNode,
 } from "react";
 
-const STORAGE_KEY = "reach-map-auth-v1";
-
-type AuthUser = {
+export type AuthUser = {
+  id?: string;
   email: string;
+  name?: string | null;
+  image?: string | null;
 };
 
 type AuthContextValue = {
   user: AuthUser | null;
   ready: boolean;
-  login: (email: string) => void;
-  logout: () => void;
+  googleEnabled: boolean;
+  login: (email: string, password?: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [ready, setReady] = useState(false);
+function AuthBridge({ children }: { children: ReactNode }) {
+  const { data, status } = useSession();
+  const [googleEnabled, setGoogleEnabled] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as AuthUser;
-        if (parsed?.email) setUser(parsed);
-      }
-    } catch {
-      // ignore
+    let cancelled = false;
+    fetch("/api/auth/config")
+      .then((res) => res.json())
+      .then((json: { google?: boolean }) => {
+        if (!cancelled) setGoogleEnabled(Boolean(json.google));
+      })
+      .catch(() => {
+        if (!cancelled) setGoogleEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const user = useMemo<AuthUser | null>(() => {
+    if (!data?.user?.email) return null;
+    return {
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.name,
+      image: data.user.image,
+    };
+  }, [data]);
+
+  const login = useCallback(async (email: string, password = "demo") => {
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+    if (result?.error) {
+      throw new Error(result.error);
     }
-    setReady(true);
   }, []);
 
-  const login = useCallback((email: string) => {
-    const next = { email };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setUser(next);
+  const loginWithGoogle = useCallback(async () => {
+    await signIn("google", { callbackUrl: "/" });
   }, []);
 
-  const logout = useCallback(() => {
-    window.localStorage.removeItem(STORAGE_KEY);
-    setUser(null);
+  const logout = useCallback(async () => {
+    await signOut({ callbackUrl: "/login" });
   }, []);
 
   const value = useMemo(
-    () => ({ user, ready, login, logout }),
-    [user, ready, login, logout],
+    () => ({
+      user,
+      ready: status !== "loading",
+      googleEnabled,
+      login,
+      loginWithGoogle,
+      logout,
+    }),
+    [user, status, googleEnabled, login, loginWithGoogle, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  return (
+    <SessionProvider>
+      <AuthBridge>{children}</AuthBridge>
+    </SessionProvider>
+  );
 }
 
 export function useAuth() {

@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { LeadPanel } from "@/components/lead-panel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -23,7 +22,6 @@ const LeadsMap = dynamic(
 function ReachAppInner() {
   const { leads, tags, ready } = useLeads();
   const { user, logout } = useAuth();
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const [tagFilter, setTagFilter] = useState<string | "all">("all");
 
@@ -83,8 +81,7 @@ function ReachAppInner() {
               variant="ghost"
               className="apple-material-soft panel-rise h-auto rounded-2xl px-3 py-3 text-[13px] font-semibold text-[#0071e3] hover:bg-white/80 [animation-delay:100ms]"
               onClick={() => {
-                logout();
-                router.replace("/login");
+                void logout();
               }}
             >
               Log out
