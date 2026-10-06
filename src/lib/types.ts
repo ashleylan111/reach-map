@@ -29,9 +29,9 @@ export const LEAD_STATUSES: { value: LeadStatus; label: string }[] = [
 ];
 
 export const STATUS_COLORS: Record<LeadStatus, string> = {
-  new: "#0e8a7d",
-  contacted: "#2563eb",
-  replied: "#d97706",
-  meeting: "#7c3aed",
-  closed: "#64748b",
+  new: "#34c759",
+  contacted: "#007aff",
+  replied: "#ff9500",
+  meeting: "#af52de",
+  closed: "#8e8e93",
 };

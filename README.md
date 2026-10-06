@@ -16,6 +16,7 @@ Plot where your outreach leads are from — an interactive map for tracking cont
 - Next.js (App Router) + TypeScript
 - Tailwind CSS + shadcn/ui
 - [mapcn](https://mapcn.dev) MapLibre map (`@/components/ui/map`)
+- Apple Human Interface–inspired materials, typography, and system colors
 
 ## Run locally
 

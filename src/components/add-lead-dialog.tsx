@@ -46,6 +46,9 @@ const emptyForm: FormState = {
   notes: "",
 };
 
+const fieldClass =
+  "h-10 rounded-xl border-transparent bg-[#787880]/12 text-[15px] shadow-none focus-visible:border-[#0071e3]/40 focus-visible:ring-[#0071e3]/20";
+
 export function AddLeadDialog() {
   const { addLead } = useLeads();
   const [open, setOpen] = useState(false);
@@ -104,47 +107,55 @@ export function AddLeadDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button className="gap-1.5 bg-[#0e8a7d] text-white hover:bg-[#0b7368]">
-          <Plus className="size-4" />
-          Add lead
+        <Button className="h-8 gap-1 rounded-full bg-[#0071e3] px-3 text-[13px] font-semibold text-white shadow-none hover:bg-[#0077ed]">
+          <Plus className="size-3.5" />
+          Add
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="font-[family-name:var(--font-display)] text-xl">
-            Pin a new lead
+      <DialogContent className="gap-0 overflow-hidden rounded-[20px] border-black/5 p-0 shadow-2xl sm:max-w-[400px]">
+        <DialogHeader className="border-b border-black/5 px-5 py-4 text-left">
+          <DialogTitle className="text-[19px] font-semibold tracking-[-0.02em]">
+            New Lead
           </DialogTitle>
-          <DialogDescription>
-            Drop a contact on the map by city. Location lookup uses OpenStreetMap.
+          <DialogDescription className="text-[13px] text-[#6e6e73]">
+            Pin someone by city. We’ll place them on the map.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Contact name</Label>
+        <form onSubmit={handleSubmit} className="grid gap-4 px-5 py-4">
+          <div className="grid gap-1.5">
+            <Label htmlFor="name" className="text-[12px] font-medium text-[#6e6e73]">
+              Name
+            </Label>
             <Input
               id="name"
+              className={fieldClass}
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="Jordan Hale"
               autoComplete="name"
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="company">Company</Label>
+          <div className="grid gap-1.5">
+            <Label htmlFor="company" className="text-[12px] font-medium text-[#6e6e73]">
+              Company
+            </Label>
             <Input
               id="company"
+              className={fieldClass}
               value={form.company}
               onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
               placeholder="Harbor & Co"
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="location">Location</Label>
+          <div className="grid gap-1.5">
+            <Label htmlFor="location" className="text-[12px] font-medium text-[#6e6e73]">
+              Location
+            </Label>
             <div className="relative">
-              <MapPin className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <MapPin className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#86868b]" />
               <Input
                 id="location"
-                className="pl-9"
+                className={`${fieldClass} pl-9`}
                 value={form.location}
                 onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
                 placeholder="Austin, TX or London, UK"
@@ -152,18 +163,18 @@ export function AddLeadDialog() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="grid gap-2">
-              <Label>Status</Label>
+            <div className="grid gap-1.5">
+              <Label className="text-[12px] font-medium text-[#6e6e73]">Status</Label>
               <Select
                 value={form.status}
                 onValueChange={(value) =>
                   setForm((f) => ({ ...f, status: value as LeadStatus }))
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className={`${fieldClass} w-full`}>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl">
                   {LEAD_STATUSES.map((s) => (
                     <SelectItem key={s.value} value={s.value}>
                       {s.label}
@@ -172,16 +183,16 @@ export function AddLeadDialog() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-2">
-              <Label>Channel</Label>
+            <div className="grid gap-1.5">
+              <Label className="text-[12px] font-medium text-[#6e6e73]">Channel</Label>
               <Select
                 value={form.channel}
                 onValueChange={(value) => setForm((f) => ({ ...f, channel: value }))}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className={`${fieldClass} w-full`}>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl">
                   {CHANNELS.map((c) => (
                     <SelectItem key={c} value={c}>
                       {c}
@@ -191,25 +202,29 @@ export function AddLeadDialog() {
               </Select>
             </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="notes">Notes</Label>
+          <div className="grid gap-1.5">
+            <Label htmlFor="notes" className="text-[12px] font-medium text-[#6e6e73]">
+              Notes
+            </Label>
             <Textarea
               id="notes"
+              className="min-h-[84px] rounded-xl border-transparent bg-[#787880]/12 text-[15px] shadow-none focus-visible:border-[#0071e3]/40 focus-visible:ring-[#0071e3]/20"
               value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-              placeholder="Next step, context, or who introduced you…"
+              placeholder="Next step or context…"
               rows={3}
             />
           </div>
           {error ? (
-            <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <p className="rounded-xl bg-[#ff3b30]/10 px-3 py-2 text-[13px] text-[#ff3b30]">
               {error}
             </p>
           ) : null}
-          <DialogFooter>
+          <DialogFooter className="gap-2 border-t border-black/5 pt-4 sm:justify-end">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
+              className="h-9 rounded-full px-4 text-[14px] font-semibold text-[#0071e3] hover:bg-[#0071e3]/10"
               onClick={() => setOpen(false)}
               disabled={submitting}
             >
@@ -217,16 +232,16 @@ export function AddLeadDialog() {
             </Button>
             <Button
               type="submit"
-              className="bg-[#0e8a7d] text-white hover:bg-[#0b7368]"
+              className="h-9 rounded-full bg-[#0071e3] px-4 text-[14px] font-semibold text-white shadow-none hover:bg-[#0077ed]"
               disabled={submitting}
             >
               {submitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Finding place…
+                  Finding…
                 </>
               ) : (
-                "Add to map"
+                "Add to Map"
               )}
             </Button>
           </DialogFooter>

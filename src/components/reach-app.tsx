@@ -11,7 +11,7 @@ const LeadsMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full w-full items-center justify-center bg-[#d7e3ea] text-sm text-[#4a6270]">
+      <div className="flex h-full w-full items-center justify-center bg-[#e8e8ed] text-sm text-[#6e6e73]">
         Loading map…
       </div>
     ),
@@ -44,38 +44,50 @@ function ReachAppInner() {
   }, [leads, query, statusFilter]);
 
   return (
-    <div className="relative flex min-h-dvh flex-col lg:h-dvh lg:flex-row lg:overflow-hidden">
-      <aside className="order-2 flex min-h-[420px] min-h-0 flex-1 flex-col border-t border-[color:var(--line)] lg:order-1 lg:h-full lg:w-[380px] lg:flex-none lg:border-t-0 lg:border-r">
-        <LeadPanel
-          filteredLeads={filteredLeads}
-          query={query}
-          onQueryChange={setQuery}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-        />
-      </aside>
+    <div className="relative h-dvh w-full overflow-hidden bg-[#e8e8ed]">
+      <div className="absolute inset-0 map-fade-in">
+        <LeadsMap filteredLeads={filteredLeads} />
+      </div>
 
-      <section className="relative order-1 h-[52dvh] min-h-[280px] w-full lg:order-2 lg:h-full lg:min-h-0 lg:flex-1">
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-[500] flex justify-end p-3 sm:p-4">
-          <div className="animate-in fade-in duration-500 rounded-md bg-white/90 px-3 py-2 text-xs text-[#4a6270] shadow-sm backdrop-blur-sm">
-            {ready ? `${filteredLeads.length} leads plotted` : "Loading…"}
+      <div className="pointer-events-none absolute inset-0 z-20 flex flex-col p-3 sm:p-4 lg:p-5">
+        <header className="pointer-events-none mb-3 flex items-start justify-between gap-3">
+          <div className="apple-material panel-rise pointer-events-auto rounded-2xl px-4 py-3">
+            <p className="text-[21px] leading-tight font-semibold tracking-[-0.022em] text-[#1d1d1f]">
+              Reach Map
+            </p>
+            <p className="mt-0.5 text-[13px] leading-snug text-[#6e6e73]">
+              Outreach geography
+            </p>
+          </div>
+          <div className="apple-material-soft panel-rise pointer-events-auto rounded-full px-3.5 py-2 text-[13px] font-medium text-[#1d1d1f] [animation-delay:80ms]">
+            {ready ? `${filteredLeads.length} leads` : "Loading…"}
+          </div>
+        </header>
+
+        <div className="pointer-events-none flex min-h-0 flex-1 flex-col justify-end gap-3 lg:flex-row lg:justify-start">
+          <div className="pointer-events-auto panel-rise flex max-h-[48%] w-full flex-col sm:max-h-[55%] lg:max-h-none lg:w-[360px] lg:max-w-[360px] [animation-delay:120ms]">
+            <div className="apple-material flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px]">
+              <LeadPanel
+                filteredLeads={filteredLeads}
+                query={query}
+                onQueryChange={setQuery}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="absolute inset-0 map-fade-in">
-          <LeadsMap filteredLeads={filteredLeads} />
-        </div>
-
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[500] flex justify-center p-3 sm:justify-end sm:p-4">
-          <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-md bg-white/90 px-3 py-2 text-xs text-[#4a6270] shadow-sm backdrop-blur-sm">
-            <LegendDot color="#0e8a7d" label="New" />
-            <LegendDot color="#2563eb" label="Contacted" />
-            <LegendDot color="#d97706" label="Replied" />
-            <LegendDot color="#7c3aed" label="Meeting" />
-            <LegendDot color="#64748b" label="Closed" />
+        <div className="pointer-events-none mt-3 flex justify-center sm:justify-end">
+          <div className="apple-material-soft panel-rise pointer-events-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-full px-3.5 py-2 text-[12px] text-[#6e6e73] [animation-delay:180ms]">
+            <LegendDot color="#34c759" label="New" />
+            <LegendDot color="#007aff" label="Contacted" />
+            <LegendDot color="#ff9500" label="Replied" />
+            <LegendDot color="#af52de" label="Meeting" />
+            <LegendDot color="#8e8e93" label="Closed" />
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

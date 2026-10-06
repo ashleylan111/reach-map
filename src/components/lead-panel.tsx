@@ -2,7 +2,6 @@
 
 import { Search, Trash2 } from "lucide-react";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { useLeads } from "@/lib/leads-store";
 import {
   LEAD_STATUSES,
@@ -43,25 +41,14 @@ export function LeadPanel({
 
   const selected = leads.find((l) => l.id === selectedId) ?? null;
 
-  const cityCounts = filteredLeads.reduce<Record<string, number>>((acc, lead) => {
-    const key = lead.city;
-    acc[key] = (acc[key] ?? 0) + 1;
-    return acc;
-  }, {});
-  const topCities = Object.entries(cityCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3);
-
   return (
-    <aside className="flex h-full min-h-0 flex-col bg-[color:var(--panel)] text-[color:var(--ink)]">
-      <div className="border-b border-[color:var(--line)] px-5 pt-5 pb-4">
-        <div className="mb-4 flex items-start justify-between gap-3">
+    <div className="flex h-full min-h-0 flex-col text-[#1d1d1f]">
+      <div className="shrink-0 px-4 pt-4 pb-3">
+        <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <p className="font-[family-name:var(--font-display)] text-2xl tracking-tight text-[color:var(--ink)]">
-              Reach Map
-            </p>
-            <p className="mt-1 text-sm text-[color:var(--muted-ink)]">
-              See where your outreach leads are coming from.
+            <p className="text-[15px] font-semibold tracking-[-0.01em]">Leads</p>
+            <p className="text-[12px] text-[#6e6e73]">
+              {filteredLeads.length} on the map
             </p>
           </div>
           <AddLeadDialog />
@@ -69,12 +56,12 @@ export function LeadPanel({
 
         <div className="grid gap-2">
           <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[color:var(--muted-ink)]" />
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-[#86868b]" />
             <Input
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
-              placeholder="Search name, company, city…"
-              className="border-[color:var(--line)] bg-white/70 pl-9"
+              placeholder="Search"
+              className="h-9 rounded-xl border-transparent bg-[#787880]/12 pl-9 text-[15px] shadow-none placeholder:text-[#86868b] focus-visible:border-[#0071e3]/40 focus-visible:ring-[#0071e3]/20"
             />
           </div>
           <Select
@@ -83,10 +70,10 @@ export function LeadPanel({
               onStatusFilterChange(value as LeadStatus | "all")
             }
           >
-            <SelectTrigger className="w-full border-[color:var(--line)] bg-white/70">
-              <SelectValue placeholder="Filter status" />
+            <SelectTrigger className="h-9 w-full rounded-xl border-transparent bg-[#787880]/12 text-[14px] shadow-none">
+              <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="all">All statuses</SelectItem>
               {LEAD_STATUSES.map((s) => (
                 <SelectItem key={s.value} value={s.value}>
@@ -96,31 +83,13 @@ export function LeadPanel({
             </SelectContent>
           </Select>
         </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Badge
-            variant="secondary"
-            className="rounded-md bg-[#0e8a7d]/12 text-[#0b5f56]"
-          >
-            {filteredLeads.length} on map
-          </Badge>
-          {topCities.map(([city, count]) => (
-            <Badge
-              key={city}
-              variant="outline"
-              className="rounded-md border-[color:var(--line)] text-[color:var(--muted-ink)]"
-            >
-              {city} · {count}
-            </Badge>
-          ))}
-        </div>
       </div>
 
-      <ScrollArea className="min-h-0 flex-1">
-        <ul className="divide-y divide-[color:var(--line)]">
+      <ScrollArea className="min-h-0 flex-1 px-2">
+        <ul className="space-y-1 px-1 pb-2">
           {filteredLeads.length === 0 ? (
-            <li className="px-5 py-10 text-center text-sm text-[color:var(--muted-ink)]">
-              No leads match this filter. Add one or clear the search.
+            <li className="px-3 py-12 text-center text-[13px] text-[#6e6e73]">
+              No leads match. Try another search or add one.
             </li>
           ) : (
             filteredLeads.map((lead) => {
@@ -131,26 +100,32 @@ export function LeadPanel({
                     type="button"
                     onClick={() => setSelectedId(lead.id)}
                     className={cn(
-                      "flex w-full flex-col gap-1 px-5 py-3.5 text-left transition-colors",
+                      "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors",
                       active
-                        ? "bg-[#0e8a7d]/10"
-                        : "hover:bg-black/[0.03]",
+                        ? "bg-[#0071e3] text-white"
+                        : "hover:bg-[#787880]/10",
                     )}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium">{lead.name}</span>
+                    <span
+                      className={cn(
+                        "size-2.5 shrink-0 rounded-full",
+                        active && "ring-2 ring-white/70",
+                      )}
+                      style={{ backgroundColor: STATUS_COLORS[lead.status] }}
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[15px] font-medium tracking-[-0.01em]">
+                        {lead.name}
+                      </span>
                       <span
-                        className="size-2.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: STATUS_COLORS[lead.status] }}
-                        aria-hidden
-                      />
-                    </div>
-                    <span className="text-sm text-[color:var(--muted-ink)]">
-                      {lead.company}
-                    </span>
-                    <span className="text-xs text-[color:var(--muted-ink)]">
-                      {lead.city}
-                      {lead.region ? `, ${lead.region}` : ""} · {lead.country}
+                        className={cn(
+                          "block truncate text-[12px]",
+                          active ? "text-white/75" : "text-[#6e6e73]",
+                        )}
+                      >
+                        {lead.company} · {lead.city}
+                      </span>
                     </span>
                   </button>
                 </li>
@@ -161,74 +136,68 @@ export function LeadPanel({
       </ScrollArea>
 
       {selected ? (
-        <>
-          <Separator className="bg-[color:var(--line)]" />
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 px-5 py-4">
-            <div className="mb-2 flex items-start justify-between gap-2">
-              <div>
-                <p className="font-medium">{selected.name}</p>
-                <p className="text-sm text-[color:var(--muted-ink)]">
-                  {selected.company}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="text-destructive hover:text-destructive"
-                onClick={() => removeLead(selected.id)}
-                aria-label="Remove lead"
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            </div>
-            <p className="mb-3 text-xs text-[color:var(--muted-ink)]">
-              {selected.channel} ·{" "}
-              {new Date(selected.createdAt).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </p>
-            {selected.notes ? (
-              <p className="mb-3 text-sm leading-relaxed text-[color:var(--ink)]/90">
-                {selected.notes}
+        <div className="shrink-0 border-t border-black/5 px-4 py-3">
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate text-[15px] font-semibold tracking-[-0.01em]">
+                {selected.name}
               </p>
-            ) : null}
-            <div className="grid gap-2">
-              <p className="text-xs font-medium tracking-wide text-[color:var(--muted-ink)] uppercase">
-                Status
+              <p className="truncate text-[13px] text-[#6e6e73]">
+                {selected.company}
               </p>
-              <Select
-                value={selected.status}
-                onValueChange={(value) =>
-                  updateStatus(selected.id, value as LeadStatus)
-                }
-              >
-                <SelectTrigger className="w-full border-[color:var(--line)] bg-white/70">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEAD_STATUSES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-full text-[#ff3b30] hover:bg-[#ff3b30]/10 hover:text-[#ff3b30]"
+              onClick={() => removeLead(selected.id)}
+              aria-label="Remove lead"
+            >
+              <Trash2 className="size-4" />
+            </Button>
           </div>
-        </>
+          <p className="mb-2 text-[12px] text-[#86868b]">
+            {selected.channel} ·{" "}
+            {new Date(selected.createdAt).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </p>
+          {selected.notes ? (
+            <p className="mb-3 text-[13px] leading-relaxed text-[#1d1d1f]/90">
+              {selected.notes}
+            </p>
+          ) : null}
+          <Select
+            value={selected.status}
+            onValueChange={(value) =>
+              updateStatus(selected.id, value as LeadStatus)
+            }
+          >
+            <SelectTrigger className="h-9 w-full rounded-xl border-transparent bg-[#787880]/12 text-[14px] shadow-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              {LEAD_STATUSES.map((s) => (
+                <SelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       ) : null}
 
-      <div className="border-t border-[color:var(--line)] px-5 py-3">
+      <div className="shrink-0 border-t border-black/5 px-4 py-2.5">
         <button
           type="button"
           onClick={resetToSeed}
-          className="text-xs text-[color:var(--muted-ink)] underline-offset-2 hover:underline"
+          className="text-[12px] font-medium text-[#0071e3]"
         >
           Reset to sample leads
         </button>
       </div>
-    </aside>
+    </div>
   );
 }

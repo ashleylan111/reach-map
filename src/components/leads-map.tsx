@@ -71,53 +71,52 @@ export function LeadsMap({ filteredLeads }: { filteredLeads: Lead[] }) {
 
   useEffect(() => {
     setViewport(viewportForLeads(filteredLeads, selectedId));
-    // Refit when selection or the filtered set identity changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, leadKey]);
 
   return (
-    <div className="relative h-full w-full">
-      <Map
-        theme="light"
-        viewport={viewport}
-        onViewportChange={setViewport}
-        className="h-full w-full rounded-none"
-      >
-        <MapControls position="bottom-right" showZoom showCompass={false} />
-        {filteredLeads.map((lead) => {
-          const active = lead.id === selectedId;
-          const color = STATUS_COLORS[lead.status];
-          return (
-            <MapMarker
-              key={lead.id}
-              longitude={lead.lng}
-              latitude={lead.lat}
-              onClick={() => setSelectedId(lead.id)}
-            >
-              <MarkerContent>
-                <span
-                  className="block rounded-full border-2 border-white shadow-md transition-transform"
-                  style={{
-                    width: active ? 18 : 14,
-                    height: active ? 18 : 14,
-                    backgroundColor: color,
-                    transform: active ? "scale(1.15)" : undefined,
-                  }}
-                  aria-hidden
-                />
-              </MarkerContent>
-              <MarkerPopup className="min-w-[170px] rounded-md border border-[color:var(--line)] bg-white p-3 shadow-md">
-                <p className="font-semibold text-[#123047]">{lead.name}</p>
-                <p className="text-sm text-[#4a6270]">{lead.company}</p>
-                <p className="mt-1 text-xs text-[#6b7f8a]">
-                  {lead.city}
-                  {lead.region ? `, ${lead.region}` : ""} · {lead.country}
-                </p>
-              </MarkerPopup>
-            </MapMarker>
-          );
-        })}
-      </Map>
-    </div>
+    <Map
+      theme="light"
+      viewport={viewport}
+      onViewportChange={setViewport}
+      className="h-full w-full rounded-none"
+    >
+      <MapControls position="bottom-left" showZoom showCompass={false} />
+      {filteredLeads.map((lead) => {
+        const active = lead.id === selectedId;
+        const color = STATUS_COLORS[lead.status];
+        return (
+          <MapMarker
+            key={lead.id}
+            longitude={lead.lng}
+            latitude={lead.lat}
+            onClick={() => setSelectedId(lead.id)}
+          >
+            <MarkerContent>
+              <span
+                className="block rounded-full border-2 border-white shadow-[0_2px_8px_rgba(0,0,0,0.25)] transition-transform"
+                style={{
+                  width: active ? 18 : 14,
+                  height: active ? 18 : 14,
+                  backgroundColor: color,
+                  transform: active ? "scale(1.12)" : undefined,
+                }}
+                aria-hidden
+              />
+            </MarkerContent>
+            <MarkerPopup className="apple-material-soft min-w-[180px] rounded-2xl p-3.5">
+              <p className="text-[15px] font-semibold tracking-[-0.01em] text-[#1d1d1f]">
+                {lead.name}
+              </p>
+              <p className="text-[13px] text-[#6e6e73]">{lead.company}</p>
+              <p className="mt-1 text-[12px] text-[#86868b]">
+                {lead.city}
+                {lead.region ? `, ${lead.region}` : ""} · {lead.country}
+              </p>
+            </MarkerPopup>
+          </MapMarker>
+        );
+      })}
+    </Map>
   );
 }
