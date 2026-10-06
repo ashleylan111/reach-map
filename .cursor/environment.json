@@ -1,0 +1,5 @@
+{
+  "name": "Reach Map",
+  "install": "npm ci",
+  "start": "exec npm run dev -- -p 43123 -H 0.0.0.0"
+}
