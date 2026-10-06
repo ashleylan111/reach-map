@@ -15,7 +15,7 @@ Plot where your outreach leads are from — an interactive map for tracking cont
 
 - Next.js (App Router) + TypeScript
 - Tailwind CSS + shadcn/ui
-- Leaflet / react-leaflet (CARTO Voyager tiles)
+- [mapcn](https://mapcn.dev) MapLibre map (`@/components/ui/map`)
 
 ## Run locally
 
