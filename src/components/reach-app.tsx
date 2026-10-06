@@ -65,7 +65,7 @@ function ReachAppInner() {
         </header>
 
         <div className="pointer-events-none flex min-h-0 flex-1 flex-col justify-end gap-3 lg:flex-row lg:justify-start">
-          <div className="pointer-events-auto panel-rise flex max-h-[48%] w-full flex-col sm:max-h-[55%] lg:max-h-none lg:w-[360px] lg:max-w-[360px] [animation-delay:120ms]">
+          <div className="pointer-events-auto panel-rise flex max-h-[48%] w-full flex-col sm:max-h-[55%] lg:h-full lg:max-h-none lg:w-[360px] lg:max-w-[360px] [animation-delay:120ms]">
             <div className="apple-material flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px]">
               <LeadPanel
                 filteredLeads={filteredLeads}
