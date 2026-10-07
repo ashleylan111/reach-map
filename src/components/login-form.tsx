@@ -57,7 +57,7 @@ export function LoginForm({
     setError(null);
     if (!googleEnabled) {
       setError(
-        "Google sign-in isn’t configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, then restart the app.",
+        "Google sign-in isn’t configured yet. Add CLIENT_ID_GOOGLE and CLIENT_GOOGLE_SECRET, then restart the app.",
       );
       return;
     }

@@ -3,7 +3,7 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 
 const googleConfigured = Boolean(
-  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
+  process.env.CLIENT_ID_GOOGLE && process.env.CLIENT_GOOGLE_SECRET,
 );
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -12,8 +12,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ...(googleConfigured
       ? [
           Google({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            clientId: process.env.CLIENT_ID_GOOGLE!,
+            clientSecret: process.env.CLIENT_GOOGLE_SECRET!,
             allowDangerousEmailAccountLinking: true,
           }),
         ]

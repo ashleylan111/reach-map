@@ -38,7 +38,7 @@ Open [http://127.0.0.1:43123](http://127.0.0.1:43123).
 
 1. Create an OAuth **Web application** client in [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
 2. Add authorized redirect URI: `http://127.0.0.1:43123/api/auth/callback/google`
-3. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `AUTH_SECRET` in `.env.local` (or Cloud Agent secrets).
+3. Set `CLIENT_ID_GOOGLE`, `CLIENT_GOOGLE_SECRET`, and `AUTH_SECRET` in `.env.local` (or Cloud Agent secrets).
 4. Restart the dev server.
 
 Until those are set, **Continue with Google** stays disabled and demo email login still works.
